@@ -17,33 +17,71 @@ class App extends React.Component {
     currentSort: null,
   }
 
-  sortBy = field => ()=> {
-    if( this.state.currentSort === field+'-up'){
-      const sortedFiles = JSON.parse(JSON.stringify(files))
-      .sort((fileA, fileB)=>
-        fileA[field] > fileB[field] ? -1 : 1
+  sortByName = ()=> {
+    if( this.state.currentSort === 'name-up'){
+      const sortedFiles = this.state.files.sort((fileA, fileB)=>
+        fileA.name > fileB.name ? -1 : 1
       );
 
       this.setState({
-        currentSort: field+'-dn',
-        files: convertFileDates(rawFiles.map(file=> ({
+        currentSort: 'name-dn',
+        files: this.state.files.map(file=> ({
           ...file,
-          position: sortedFiles.findIndex(f=> file.name === f.name),
-        })))
+          position: sortedFiles.indexOf(file),
+        }))
       });
 
     } else {
-      const sortedFiles = JSON.parse(JSON.stringify(files))
-      .sort((fileA, fileB)=>
-        fileA[field] > fileB[field] ? 1 : -1
+      const sortedFiles = this.state.files.sort((fileA, fileB)=>
+        fileA.name > fileB.name ? 1 : -1
       );
 
       this.setState({
-        currentSort: field+'-up',
-        files: convertFileDates(rawFiles.map(file=> ({
+        currentSort: 'name-up',
+        files: this.state.files.map(file=> ({
           ...file,
-          position: sortedFiles.findIndex(f => file.name === f.name),
-        })) )
+          position: sortedFiles.indexOf(file),
+        }))
+      });
+    }
+  }
+
+  sortBySize = ()=> {
+    if( this.state.currentSort === 'size-up'){
+      this.setState({
+        currentSort: 'size-dn',
+        files: files.sort((fileA, fileB)=>
+          fileA.size > fileB.size ? -1 : 1
+        )
+      });
+
+    } else {
+      this.setState({
+        currentSort: 'size-up',
+        files: files.sort((fileA, fileB)=>
+          fileA.size > fileB.size ? 1 : -1
+        )
+      });
+    }
+  }
+
+  sortByDate = ()=> {
+    if( this.state.currentSort === 'date-up'){
+      this.setState({
+        currentSort: 'date-dn',
+        files: convertFileDates(
+          rawFiles.sort((fileA, fileB)=>
+            fileA.updated > fileB.updated ? -1 : 1
+          ))
+      });
+
+    } else {
+      this.setState({
+        currentSort: 'date-up',
+        files: convertFileDates(
+          rawFiles.sort((fileA, fileB)=>
+            fileA.updated > fileB.updated ? 1 : -1
+          ))
       });
     }
   }
@@ -55,20 +93,19 @@ class App extends React.Component {
         <div className='sorting-table'>
           <div className='header-row'>
             <div>
-              <button onClick={this.sortBy('name')}>Name</button>
+              <button onClick={this.sortByName}>Name</button>
             </div>
             <div>
-              <button onClick={this.sortBy('size')}>Size</button>
+              <button onClick={this.sortBySize}>Size</button>
             </div>
             <div>
-              <button onClick={this.sortBy('updated')}>Updated</button>
+              <button onClick={this.sortByDate}>Updated</button>
             </div>
           </div>
           {
             this.state.files.map((file, i)=> (
               <div className='row'
-                   key={file.name}
-                   style={{ top: ((file.position+1) * 100/ (files.length + 1))+'%' }}>
+                   key={file.name}>
                 <div>{file.name}</div>
                 <div>{file.size}</div>
                 <div>{file.updated}</div>
